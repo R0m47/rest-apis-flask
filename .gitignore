@@ -1,3 +1,40 @@
-venv
 
+# Entorno virtual
+venv/
+env/
+*.env
 
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de datos SQLite
+db.sqlite3
+
+# Archivos de migraciones si prefieres no versionarlas
+#**/migrations/*.py
+#**/migrations/*.pyc
+
+# Archivos de configuración local
+local_settings.py
+
+# Archivos de logs
+*.log
+
+# Staticfiles recopilados
+staticfiles/
+
+# Editor/IDE
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.idea/
+*.swp
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# DB COFING
+db_config.py
