@@ -15,7 +15,7 @@ def get_stores():
     return {"stores": stores}
 
 
-@app.get("/store/<string:name>")
+@app.get("/store/<string:store_name>")
 def get_store(store_name):
     for store in stores:
         if store["name"] == store_name:
@@ -23,7 +23,7 @@ def get_store(store_name):
     return {"message": "Store not found"}, 404
 
 
-@app.get("/store/<string:name>/item")
+@app.get("/store/<string:store_name>/item")
 def get_store_items(store_name):
     for store in stores:
         if store["name"] == store_name:
@@ -39,7 +39,7 @@ def create_store():
     return new_store, 201
 
 
-@app.post("/store/<string:name>/item")
+@app.post("/store/<string:store_name>/item")
 def create_item(store_name):
     request_data = request.get_json()
     for store in stores:
