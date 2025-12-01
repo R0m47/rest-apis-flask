@@ -1,51 +1,19 @@
-import uuid
-from flask import Flask, request
-from db import items, stores
+from flask import Flask
+from flask_smorest import Api
+from resources.item import item_blueprint
+from resources.store import store_blueprint
 
 app = Flask(__name__)
 
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "Stores REST API"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-@app.get("/store")
-def get_stores():
-    return {"stores": list(stores.values())}
+api = Api(app)
 
-
-@app.get("/store/<string:store_id>")
-def get_store(store_id):
-    try:
-        return stores[store_id]
-    except KeyError:
-        return {"message": "Store not found"}, 404
-
-
-@app.post("/store")
-def create_store():
-    store_data = request.get_json()
-    store_id = uuid.uid4().hex
-    store = {**store_data, "id": store_id}
-    stores[store_id] = store
-    return store, 201
-
-
-@app.get("/item")
-def get_all_items():
-    return {"items": list(items.values())}
-
-
-@app.get("/item/<string:item_id>")
-def get_item(item_id):
-    try:
-        return items[item_id]
-    except KeyError:
-        return {"message": "Item not found"}, 404
-
-
-@app.post("/item")
-def create_item():
-    item_data = request.get_json()
-    if item_data["store_id"] not in stores:
-        return {"message": "Store not found"}, 404
-    item_id = uuid.uid4().hex
-    item = {**item_data, "id": item_id}
-    items[item_id] = item
-    return item, 201
+api.register_blueprint(store_blueprint)
+api.register_blueprint(item_blueprint)
