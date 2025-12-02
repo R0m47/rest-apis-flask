@@ -1,8 +1,10 @@
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 import uuid
+from db import db
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from db import stores
+from models.store import StoreModel
 from schemas import StoreSchema
 
 
@@ -13,17 +15,12 @@ store_blueprint = Blueprint("Stores", __name__, description="Operations on store
 class Store(MethodView):
     @store_blueprint.response(200, StoreSchema)
     def get(self, store_id):
-        try:
-            return stores[store_id]
-        except KeyError:
-            abort(404, message="Store not found.")
+        store = StoreModel.query.get_or_404(store_id)
+        return store
 
     def delete(self, store_id):
-        try:
-            del stores[store_id]
-            return {"message": "Store deleted."}
-        except KeyError:
-            abort(404, message="Store not found.")
+        store = StoreModel.query.get_or_404(store_id)
+        raise NotImplementedError("Delete a store is not implemented yet.")
 
 
 @store_blueprint.route("/store")
@@ -35,10 +32,12 @@ class StoreList(MethodView):
     @store_blueprint.arguments(StoreSchema)
     @store_blueprint.response(201, StoreSchema)
     def post(self, store_data):
-        for store in stores.values():
-            if store["name"] == store_data["name"]:
-                abort(400, message="Store with that name already exists.")
-        store_id = uuid.uuid4().hex
-        store = {**store_data, "id": store_id}
-        stores[store_id] = store
-        return store, 201
+        store = StoreModel(**store_data)
+        try:
+            db.session.add(store)
+            db.session.commit()
+        except IntegrityError:
+            abort(400, message="A store with that name already exists.")
+        except SQLAlchemyError:
+            abort(500, message="An error occurred while creating the store.")
+        return store
