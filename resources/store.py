@@ -20,14 +20,16 @@ class Store(MethodView):
 
     def delete(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
-        raise NotImplementedError("Delete a store is not implemented yet.")
+        db.session.delete(store)
+        db.session.commit()
+        return {"message": "Store deleted."}
 
 
 @store_blueprint.route("/store")
 class StoreList(MethodView):
     @store_blueprint.response(200, StoreSchema(many=True))
     def get(self):
-        return stores.values()
+        return StoreModel.query.all()
 
     @store_blueprint.arguments(StoreSchema)
     @store_blueprint.response(201, StoreSchema)
